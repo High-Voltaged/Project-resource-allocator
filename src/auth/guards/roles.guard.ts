@@ -19,14 +19,12 @@ export class RolesGuard implements CanActivate {
 
   canActivate(context: ExecutionContext): boolean {
     const roles = this.reflector.get(Roles, context.getHandler());
-    console.log({ roles });
     if (!roles) {
       return true;
     }
 
     const ctx = GqlExecutionContext.create(context);
     const user = ctx.getContext().req.user;
-    console.log({ userRole: user.role });
 
     const isAllowed = matchRoles(user.role, roles);
 

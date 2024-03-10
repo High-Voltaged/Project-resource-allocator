@@ -20,7 +20,7 @@ export class ProjectResolver {
 
   @Query(() => Project)
   async projectById(@Args('id') id: string): Promise<Project> {
-    return this.projectService.findById(id);
+    return this.projectService.findOneById(id);
   }
 
   @Roles([UserRole.Admin, UserRole.Manager])

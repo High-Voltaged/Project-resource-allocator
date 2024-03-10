@@ -1,9 +1,14 @@
+import { Field, ObjectType } from '@nestjs/graphql';
 import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
+import { Project } from '~/projects/project.entity';
+import { User } from '~/users/user.entity';
 
 export enum TicketStatus {
   backlog = 'backlog',
@@ -14,17 +19,22 @@ export enum TicketStatus {
   deployed = 'deployed',
 }
 
+@ObjectType()
 @Entity({ name: 'tickets' })
 export class Ticket {
+  @Field()
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Field()
   @Column()
   title: string;
 
+  @Field()
   @Column()
   description: string;
 
+  @Field()
   @Column({
     type: 'enum',
     enum: TicketStatus,
@@ -33,18 +43,22 @@ export class Ticket {
   status: string;
 
   // Consider 0 the lowest priority
+  @Field()
   @Column({ default: 0 })
   priority: number;
 
   @CreateDateColumn()
   createdAt: Date;
 
+  @Field()
   @Column({ name: 'due_to', type: 'date' })
   dueTo: Date;
 
-  @Column({ name: 'project_id' })
-  projectId: string;
+  @ManyToOne(() => Project)
+  @JoinColumn({ name: 'project_id' })
+  project: Project;
 
-  @Column({ name: 'reporter_id' })
-  reporterId: string;
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'reporter_id' })
+  reporter: User;
 }

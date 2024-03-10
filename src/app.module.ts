@@ -10,6 +10,8 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { AppResolver } from './app.resolver';
 import { ProjectModule } from './projects/project.module';
+import { TicketModule } from './tickets/ticket.module';
+import { DateTimeScalar } from './shared/date.scalar';
 
 dotenv.config();
 
@@ -32,8 +34,9 @@ dotenv.config();
     AuthModule,
     UserModule,
     ProjectModule,
+    TicketModule,
   ],
   controllers: [AppController],
-  providers: [AppService, AppResolver],
+  providers: [AppService, AppResolver, DateTimeScalar],
 })
 export class AppModule {}

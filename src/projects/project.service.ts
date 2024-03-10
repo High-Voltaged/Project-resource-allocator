@@ -16,7 +16,7 @@ export class ProjectService {
     return this.projectRepository.find();
   }
 
-  async findById(id: string) {
+  async findOneById(id: string) {
     const found = await this.projectRepository.findOne({ where: { id } });
 
     if (!found) {
