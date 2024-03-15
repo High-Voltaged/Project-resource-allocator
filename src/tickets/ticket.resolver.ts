@@ -2,26 +2,30 @@ import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { TicketService } from './ticket.service';
 import { Ticket } from './ticket.entity';
 import { NotFoundException, UseGuards } from '@nestjs/common';
-import { RolesGuard } from '~/auth/guards/roles.guard';
 import { Roles } from '~/auth/decorators/roles.decorator';
 import { User, UserRole } from '~/users/user.entity';
 import { CreateTicketInput, UpdateTicketInput } from './dto/ticket.dto';
 import { JwtAuthGuard } from '~/auth/guards/jwt.guard';
 import { CurrentUser } from '~/auth/decorators/current_user.decorator';
 import ticketErrors from './ticket.constants';
+import { UUIDInput } from '~/shared/dto';
+import { ProjectGuard } from '~/auth/guards/associate/project.guard';
+import { TicketGuard } from '~/auth/guards/associate/ticket.guard';
 
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard)
 @Resolver(() => Ticket)
 export class TicketResolver {
   constructor(private readonly ticketService: TicketService) {}
 
+  @UseGuards(ProjectGuard)
   @Query(() => [Ticket])
-  async ticketsByProjectId(@Args('projectId') id: string) {
+  ticketsByProjectId(@Args() { id }: UUIDInput) {
     return this.ticketService.findAllByProjectId(id);
   }
 
+  @UseGuards(TicketGuard)
   @Query(() => Ticket)
-  async ticketById(@Args('id') id: string) {
+  async ticketById(@Args() { id }: UUIDInput) {
     const found = await this.ticketService.findOneById(id);
 
     if (!found) {
@@ -31,22 +35,25 @@ export class TicketResolver {
     return found;
   }
 
+  @UseGuards(ProjectGuard)
   @Mutation(() => Ticket)
-  async createTicket(
+  createTicket(
     @CurrentUser() user: User,
     @Args() data: CreateTicketInput,
   ): Promise<Ticket> {
     return this.ticketService.createTicket(data, user.id);
   }
 
+  @UseGuards(TicketGuard)
   @Mutation(() => Ticket)
-  async updateTicket(@Args() data: UpdateTicketInput) {
+  updateTicket(@Args() data: UpdateTicketInput) {
     return this.ticketService.updateTicket(data);
   }
 
+  @UseGuards(TicketGuard)
   @Roles([UserRole.Admin, UserRole.Manager])
   @Mutation(() => Boolean)
-  async deleteTicket(@Args('id') id: string): Promise<boolean> {
+  async deleteTicket(@Args() { id }: UUIDInput): Promise<boolean> {
     await this.ticketService.deleteTicket(id);
     return true;
   }

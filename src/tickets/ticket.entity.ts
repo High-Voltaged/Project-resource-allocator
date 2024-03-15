@@ -6,6 +6,8 @@ import {
   CreateDateColumn,
   ManyToOne,
   JoinColumn,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
 import { Project } from '~/projects/project.entity';
 import { User } from '~/users/user.entity';
@@ -61,4 +63,9 @@ export class Ticket {
   @ManyToOne(() => User)
   @JoinColumn({ name: 'reporter_id' })
   reporter: User;
+
+  @Field(() => [User])
+  @ManyToMany(() => User)
+  @JoinTable({ name: 'user_tickets' })
+  users: User[];
 }

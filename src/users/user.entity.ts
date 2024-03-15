@@ -1,5 +1,12 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToMany,
+  JoinTable,
+} from 'typeorm';
+import { Ticket } from '../tickets/ticket.entity';
 
 export enum UserRole {
   Admin = 'admin',
@@ -31,14 +38,11 @@ export class User {
   password: string;
 
   @Field()
-  @Column({
-    type: 'enum',
-    enum: UserRole,
-    default: UserRole.Employee,
-  })
-  role: UserRole;
-
-  @Field()
   @Column({ default: true })
   isAvailable: boolean;
+
+  @Field(() => [Ticket])
+  @ManyToMany(() => Ticket)
+  @JoinTable({ name: 'user_tickets' })
+  tickets: Ticket[];
 }

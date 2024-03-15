@@ -15,6 +15,10 @@ export class UserService {
     return this.userRepository.find();
   }
 
+  findOneById(id: string) {
+    return this.userRepository.findOne({ where: { id } });
+  }
+
   findByEmail(email: string) {
     return this.userRepository.findOne({ where: { email } });
   }
@@ -23,3 +27,7 @@ export class UserService {
     return this.userRepository.save(user);
   }
 }
+
+// when creating a user, also include their skills
+// when defining a skill, check if it exists;
+// if it doesn't, create the skill first

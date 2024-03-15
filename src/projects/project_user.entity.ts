@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryColumn, ManyToOne } from 'typeorm';
+import { Entity, Column, PrimaryColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { User, UserRole } from '~/users/user.entity';
 import { Project } from './project.entity';
 
@@ -12,10 +12,16 @@ export class ProjectUser {
   role: UserRole;
 
   @ManyToOne(() => User)
-  @PrimaryColumn({ name: 'userId' })
+  @JoinColumn({ name: 'user_id' })
   user: User;
 
+  @PrimaryColumn({ name: 'user_id' })
+  userId: string;
+
   @ManyToOne(() => Project)
-  @PrimaryColumn({ name: 'projectId' })
+  @JoinColumn({ name: 'project_id' })
   project: Project;
+
+  @PrimaryColumn({ name: 'project_id' })
+  projectId: string;
 }

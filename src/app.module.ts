@@ -12,6 +12,7 @@ import { AppResolver } from './app.resolver';
 import { ProjectModule } from './projects/project.module';
 import { TicketModule } from './tickets/ticket.module';
 import { DateTimeScalar } from './shared/date.scalar';
+import { CommentModule } from './comments/comment.module';
 
 dotenv.config();
 
@@ -35,6 +36,7 @@ dotenv.config();
     UserModule,
     ProjectModule,
     TicketModule,
+    CommentModule,
   ],
   controllers: [AppController],
   providers: [AppService, AppResolver, DateTimeScalar],

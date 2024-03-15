@@ -2,13 +2,13 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Project } from './project.entity';
 import { ProjectService } from './project.service';
-import { ProjectUser } from './project_user.entity';
 import { ProjectResolver } from './project.resolver';
-import { RolesGuard } from '~/auth/guards/roles.guard';
+import { UserModule } from '~/users/user.module';
+import { ProjectUser } from './project_user.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Project, ProjectUser])],
-  providers: [ProjectService, ProjectResolver, RolesGuard],
+  imports: [TypeOrmModule.forFeature([Project, ProjectUser]), UserModule],
+  providers: [ProjectService, ProjectResolver],
   exports: [ProjectService],
 })
 export class ProjectModule {}

@@ -1,6 +1,5 @@
 import { Field, ObjectType, ArgsType } from '@nestjs/graphql';
-import { IsEmail, IsEnum, Length } from 'class-validator';
-import { UserRole } from '~/users/user.entity';
+import { IsEmail, Length } from 'class-validator';
 
 @ArgsType()
 export class RegisterInput {
@@ -17,10 +16,6 @@ export class RegisterInput {
 
   @Field()
   lastName: string;
-
-  @Field()
-  @IsEnum(UserRole)
-  role: UserRole;
 }
 
 @ArgsType()
