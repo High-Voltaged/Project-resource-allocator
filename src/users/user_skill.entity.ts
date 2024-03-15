@@ -1,4 +1,4 @@
-import { Entity, Column, ManyToOne, PrimaryColumn } from 'typeorm';
+import { Entity, Column, ManyToOne, PrimaryColumn, JoinColumn } from 'typeorm';
 import { User } from './user.entity';
 import { Skill, SkillLevel } from '~/skills/skill.entity';
 
@@ -10,10 +10,16 @@ export class UserSkill {
   level: SkillLevel;
 
   @ManyToOne(() => User)
-  @PrimaryColumn({ name: 'userId' })
+  @JoinColumn({ name: 'user_id' })
   user: User;
 
+  @PrimaryColumn({ name: 'user_id' })
+  userId: string;
+
   @ManyToOne(() => Skill)
-  @PrimaryColumn({ name: 'skillId' })
+  @JoinColumn({ name: 'skill_id' })
   skill: Skill;
+
+  @PrimaryColumn({ name: 'skill_id' })
+  skillId: string;
 }

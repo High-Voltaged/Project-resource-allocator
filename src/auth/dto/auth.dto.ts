@@ -1,5 +1,7 @@
 import { Field, ObjectType, ArgsType } from '@nestjs/graphql';
-import { IsEmail, Length } from 'class-validator';
+import { Type } from 'class-transformer';
+import { ArrayMinSize, IsEmail, Length, ValidateNested } from 'class-validator';
+import { UserSkillInput } from '~/users/dto/user.dto';
 
 @ArgsType()
 export class RegisterInput {
@@ -11,11 +13,19 @@ export class RegisterInput {
   @Field()
   password: string;
 
+  @Length(3, 14)
   @Field()
   firstName: string;
 
+  @Length(3, 14)
   @Field()
   lastName: string;
+
+  @ArrayMinSize(1)
+  @ValidateNested({ each: true })
+  @Type(() => UserSkillInput)
+  @Field(() => [UserSkillInput])
+  skills: UserSkillInput[];
 }
 
 @ArgsType()

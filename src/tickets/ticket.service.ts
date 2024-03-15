@@ -46,9 +46,7 @@ export class TicketService {
   }
 
   async updateTicket({ id, ...data }: UpdateTicketInput) {
-    await this.ticketRepository.update(id, {
-      ...data,
-    });
+    await this.ticketRepository.update(id, data);
     return this.ticketRepository.findOne({ where: { id } });
   }
 
@@ -57,7 +55,8 @@ export class TicketService {
   }
 }
 
-// assign a ticket to someone manually
 // when creating a ticket, also include required skills
 // when defining a skill, check if it exists;
 // if it doesn't, create the skill first
+
+// assign a ticket to someone manually

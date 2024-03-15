@@ -61,10 +61,3 @@ export class ProjectResolver {
     return true;
   }
 }
-
-// 1. remove user role
-// 2. add user/project role
-// 3. add admin role by default when creating a project
-// 4. update all the user/project queries / mutations
-// 5. create a connection between a user and a project
-// 6. modify the role guard to consider the role the user has for this project
