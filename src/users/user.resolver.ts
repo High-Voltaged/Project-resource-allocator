@@ -21,11 +21,13 @@ export class UserResolver {
     private skillService: SkillService,
   ) {}
 
+  //! unprotected query
   @Query(() => [UserSkillOutput])
   userSkills(@Args() { id }: UUIDInput): Promise<UserSkillOutput[]> {
     return this.skillService.findAllByUserId(id);
   }
 
+  //! unprotected query
   @Query(() => UserWithSkillsOutput)
   userByIdWithSkills(@Args() { id }: UUIDInput) {
     return this.userService.findOneByIdWithSkills(id);

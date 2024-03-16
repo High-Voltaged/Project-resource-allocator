@@ -66,6 +66,6 @@ export class Ticket {
 
   @Field(() => [User])
   @ManyToMany(() => User)
-  @JoinTable({ name: 'user_tickets' })
-  users: User[];
+  @JoinTable({ name: 'assignees' })
+  assignees: User[];
 }

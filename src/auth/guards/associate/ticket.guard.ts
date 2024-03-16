@@ -23,8 +23,6 @@ export class TicketGuard extends BaseAssociateGuard {
     ticketId: string,
     user: User,
   ): Promise<boolean> {
-    await this.ticketService.checkIfTicketExists(ticketId);
-
     const { project } = await this.ticketService.findOneById(ticketId, {
       relations: ['project'],
     });

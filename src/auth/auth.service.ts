@@ -32,7 +32,7 @@ export class AuthService {
   async register({ password, ...user }: RegisterInput) {
     const found = await this.userService.findByEmail(user.email);
     if (found) {
-      throw new BadRequestException(authErrors.USER_EXISTS);
+      throw new BadRequestException(authErrors.EMEAIL_EXISTS);
     }
 
     const hash = await bcrypt.hash(password, SALT_OR_ROUNDS);

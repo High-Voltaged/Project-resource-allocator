@@ -4,7 +4,11 @@ import { Ticket } from './ticket.entity';
 import { NotFoundException, UseGuards } from '@nestjs/common';
 import { Roles } from '~/auth/decorators/roles.decorator';
 import { User, UserRole } from '~/users/user.entity';
-import { CreateTicketInput, UpdateTicketInput } from './dto/ticket.dto';
+import {
+  AssignTicketInput,
+  CreateTicketInput,
+  UpdateTicketInput,
+} from './dto/ticket.dto';
 import { JwtAuthGuard } from '~/auth/guards/jwt.guard';
 import { CurrentUser } from '~/auth/decorators/current_user.decorator';
 import ticketErrors from './ticket.constants';
@@ -25,14 +29,14 @@ export class TicketResolver {
 
   @UseGuards(TicketGuard)
   @Query(() => Ticket)
-  async ticketById(@Args() { id }: UUIDInput) {
-    const found = await this.ticketService.findOneById(id);
+  ticketById(@Args() { id }: UUIDInput) {
+    return this.ticketService.findOneById(id);
+  }
 
-    if (!found) {
-      throw new NotFoundException(ticketErrors.NOT_FOUND);
-    }
-
-    return found;
+  //! unprotected query
+  @Query(() => [Ticket])
+  ticketsByUserId(@Args() { id }: UUIDInput) {
+    return this.ticketService.findAllByUserId(id);
   }
 
   @UseGuards(ProjectGuard)
@@ -42,6 +46,14 @@ export class TicketResolver {
     @Args() data: CreateTicketInput,
   ): Promise<Ticket> {
     return this.ticketService.createTicket(data, user.id);
+  }
+
+  @UseGuards(TicketGuard)
+  @Roles([UserRole.Admin, UserRole.Manager])
+  @Mutation(() => Boolean)
+  async assignTicketToUser(@Args() data: AssignTicketInput) {
+    await this.ticketService.assignTicketToUser(data);
+    return true;
   }
 
   @UseGuards(TicketGuard)

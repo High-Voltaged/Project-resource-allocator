@@ -30,7 +30,7 @@ export class CommentResolver {
     return this.commentService.create(input, user.id);
   }
 
-  // no auth & role check / protection
+  //! unprotected mutation
   @Mutation(() => Boolean)
   async deleteComment(@Args() { id }: UUIDInput): Promise<boolean> {
     await this.commentService.delete(id);

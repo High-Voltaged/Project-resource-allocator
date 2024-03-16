@@ -1,4 +1,4 @@
-import { ArgsType, Field, ID, PartialType } from '@nestjs/graphql';
+import { ArgsType, Field, PartialType } from '@nestjs/graphql';
 import { TicketStatus } from '../ticket.entity';
 import { ArrayMinSize, IsEnum, IsUUID, ValidateNested } from 'class-validator';
 import { SkillInput } from '~/skills/dto/skill.dto';
@@ -35,6 +35,18 @@ export class CreateTicketInput {
 
 @ArgsType()
 export class UpdateTicketInput extends PartialType(CreateTicketInput) {
-  @Field(() => ID)
+  @IsUUID()
+  @Field()
   id: string;
+}
+
+@ArgsType()
+export class AssignTicketInput {
+  @IsUUID()
+  @Field()
+  userId: string;
+
+  @IsUUID()
+  @Field()
+  ticketId: string;
 }

@@ -14,7 +14,7 @@ export class CommentService {
   ) {}
 
   async findAllByTicketId(ticketId: string): Promise<Comment[]> {
-    await this.ticketService.checkIfTicketExists(ticketId);
+    await this.ticketService.findOneById(ticketId);
 
     return this.commentRepository.find({
       where: {
@@ -25,7 +25,7 @@ export class CommentService {
 
   async create(data: CreateCommentInput, author: string): Promise<Comment> {
     const { ticketId } = data;
-    await this.ticketService.checkIfTicketExists(data.ticketId);
+    await this.ticketService.findOneById(data.ticketId);
 
     return this.commentRepository.save({
       ...data,

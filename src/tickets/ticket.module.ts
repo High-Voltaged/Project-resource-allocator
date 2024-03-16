@@ -6,11 +6,13 @@ import { Ticket } from './ticket.entity';
 import { ProjectModule } from '~/projects/project.module';
 import { ProjectUser } from '~/projects/project_user.entity';
 import { SkillModule } from '~/skills/skill.module';
+import { UserModule } from '~/users/user.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Ticket, ProjectUser]),
     ProjectModule,
+    UserModule,
     SkillModule,
   ],
   providers: [TicketService, TicketResolver],
