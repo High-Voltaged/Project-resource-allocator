@@ -6,6 +6,7 @@ import { CreateTicketInput, UpdateTicketInput } from './dto/ticket.dto';
 import { ProjectService } from '~/projects/project.service';
 import projectErrors from '~/projects/project.constants';
 import ticketErrors from './ticket.constants';
+import { SkillService } from '~/skills/skill.service';
 
 @Injectable()
 export class TicketService {
@@ -13,6 +14,7 @@ export class TicketService {
     @InjectRepository(Ticket)
     private ticketRepository: Repository<Ticket>,
     private projectService: ProjectService,
+    private skillService: SkillService,
   ) {}
 
   async checkIfTicketExists(id: string) {
@@ -37,12 +39,19 @@ export class TicketService {
     return this.ticketRepository.findOne({ where: { id }, ...options });
   }
 
-  createTicket(ticket: CreateTicketInput, reporterId: string): Promise<Ticket> {
-    return this.ticketRepository.save({
+  async createTicket(
+    { skills, ...ticket }: CreateTicketInput,
+    reporterId: string,
+  ): Promise<Ticket> {
+    const created = await this.ticketRepository.save({
       reporter: { id: reporterId },
       project: { id: ticket.projectId },
       ...ticket,
     });
+
+    await this.skillService.saveTicketSkills(created.id, skills);
+
+    return created;
   }
 
   async updateTicket({ id, ...data }: UpdateTicketInput) {
@@ -54,9 +63,5 @@ export class TicketService {
     return this.ticketRepository.delete(ticketId);
   }
 }
-
-// when creating a ticket, also include required skills
-// when defining a skill, check if it exists;
-// if it doesn't, create the skill first
 
 // assign a ticket to someone manually

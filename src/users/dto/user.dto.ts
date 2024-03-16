@@ -1,37 +1,7 @@
-import {
-  ArgsType,
-  Field,
-  InputType,
-  ObjectType,
-  OmitType,
-} from '@nestjs/graphql';
-import { SkillLevel } from '~/skills/skill.entity';
-import {
-  IsEnum,
-  IsOptional,
-  IsUUID,
-  Max,
-  Min,
-  ValidateIf,
-} from 'class-validator';
+import { ArgsType, Field, ObjectType, OmitType } from '@nestjs/graphql';
+import { Skill, SkillLevel } from '~/skills/skill.entity';
+import { IsEnum, IsOptional, IsUUID, Max, Min } from 'class-validator';
 import { User, UserRole } from '../user.entity';
-
-@InputType()
-export class UserSkillInput {
-  @Min(SkillLevel.Beginner)
-  @Max(SkillLevel.Proficient)
-  @Field()
-  level: SkillLevel;
-
-  @ValidateIf((obj, v) => v || !obj.skillName)
-  @IsUUID()
-  @Field({ nullable: true })
-  skillId?: string;
-
-  @ValidateIf((obj, v) => v || !obj.skillId)
-  @Field({ nullable: true })
-  skillName?: string;
-}
 
 @ObjectType()
 export class UserSkillOutput {
@@ -44,6 +14,16 @@ export class UserSkillOutput {
   name: string;
 }
 
+@ObjectType()
+export class UserWithSkillsOutput extends OmitType(User, [
+  'password',
+  'tickets',
+]) {
+  @Field(() => [Skill])
+  skills: Skill[];
+}
+
+@ObjectType()
 @ArgsType()
 export class ProjectUsersInput {
   @IsUUID()
@@ -60,6 +40,7 @@ export class ProjectUsersInput {
 export class ProjectUserOutput extends OmitType(User, [
   'isAvailable',
   'password',
+  'tickets',
 ]) {
   @Field()
   role: UserRole;

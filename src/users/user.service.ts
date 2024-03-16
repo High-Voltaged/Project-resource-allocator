@@ -6,6 +6,8 @@ import { User } from './user.entity';
 import { SkillService } from '~/skills/skill.service';
 import { ProjectUsersInput } from './dto/user.dto';
 import { ProjectUser } from '~/projects/project_user.entity';
+import { UserSkill } from './user_skill.entity';
+import { Skill } from '~/skills/skill.entity';
 
 @Injectable()
 export class UserService {
@@ -21,6 +23,16 @@ export class UserService {
 
   findOneById(id: string) {
     return this.userRepository.findOne({ where: { id } });
+  }
+
+  findOneByIdWithSkills(id: string) {
+    return this.userRepository
+      .createQueryBuilder('u')
+      .select()
+      .innerJoin(UserSkill, 'us', 'us.user_id = :id', { id })
+      .innerJoinAndMapMany('u.skills', Skill, 's', 'us.skill_id = s.id')
+      .where('u.id = :id', { id })
+      .getOne();
   }
 
   findByEmail(email: string) {

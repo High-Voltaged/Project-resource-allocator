@@ -1,6 +1,8 @@
 import { ArgsType, Field, ID, PartialType } from '@nestjs/graphql';
 import { TicketStatus } from '../ticket.entity';
-import { IsEnum, IsUUID } from 'class-validator';
+import { ArrayMinSize, IsEnum, IsUUID, ValidateNested } from 'class-validator';
+import { SkillInput } from '~/skills/dto/skill.dto';
+import { Type } from 'class-transformer';
 
 @ArgsType()
 export class CreateTicketInput {
@@ -23,6 +25,12 @@ export class CreateTicketInput {
   @Field()
   @IsUUID()
   projectId: string;
+
+  @ArrayMinSize(1)
+  @ValidateNested({ each: true })
+  @Type(() => SkillInput)
+  @Field(() => [SkillInput])
+  skills: SkillInput[];
 }
 
 @ArgsType()

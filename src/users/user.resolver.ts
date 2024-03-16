@@ -9,6 +9,7 @@ import {
   ProjectUserOutput,
   ProjectUsersInput,
   UserSkillOutput,
+  UserWithSkillsOutput,
 } from './dto/user.dto';
 import { ProjectGuard } from '~/auth/guards/associate/project.guard';
 
@@ -23,6 +24,11 @@ export class UserResolver {
   @Query(() => [UserSkillOutput])
   userSkills(@Args() { id }: UUIDInput): Promise<UserSkillOutput[]> {
     return this.skillService.findAllByUserId(id);
+  }
+
+  @Query(() => UserWithSkillsOutput)
+  userByIdWithSkills(@Args() { id }: UUIDInput) {
+    return this.userService.findOneByIdWithSkills(id);
   }
 
   @UseGuards(ProjectGuard)
