@@ -20,12 +20,6 @@ export class RegisterInput {
   @Length(3, 14)
   @Field()
   lastName: string;
-
-  @ArrayMinSize(1)
-  @ValidateNested({ each: true })
-  @Type(() => SkillInput)
-  @Field(() => [SkillInput])
-  skills: SkillInput[];
 }
 
 @ArgsType()

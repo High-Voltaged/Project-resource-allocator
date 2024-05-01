@@ -68,9 +68,12 @@ export class UserService {
     return qb.getRawMany();
   }
 
-  async createUser({ skills, ...user }: RegisterInput) {
-    const created: User = await this.userRepository.save(user);
+  async createUser(data: RegisterInput) {
+    await this.userRepository.save(data);
+  }
 
-    await this.skillService.saveUserSkills(created.id, skills);
+  async updateUser(id: string, data: Partial<User>) {
+    await this.userRepository.update(id, data);
+    return this.findOneById(id);
   }
 }

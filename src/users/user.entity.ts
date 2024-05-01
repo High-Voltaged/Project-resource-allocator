@@ -1,4 +1,4 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field, ObjectType, OmitType } from '@nestjs/graphql';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -46,3 +46,6 @@ export class User {
   @JoinTable({ name: 'assignees' })
   tickets: Ticket[];
 }
+
+@ObjectType()
+export class UserOutput extends OmitType(User, ['password', 'tickets']) {}

@@ -19,15 +19,19 @@ export class SkillService {
     private ticketSkillRepository: Repository<TicketSkill>,
   ) {}
 
-  async checkIfSkillExists(id: string) {
-    const skill = await this.findOneById(id);
-    if (!skill) {
-      throw new NotFoundException(skillErrors.NOT_FOUND);
-    }
-  }
+  // async checkIfSkillExists(id: string) {
+  //   const skill = await this.findOneById(id);
+  //   if (!skill) {
+  //     throw new NotFoundException(skillErrors.NOT_FOUND);
+  //   }
+  // }
 
-  findOneById(id: string, options: FindOneOptions<Skill> = {}) {
-    return this.skillRepository.findOne({ where: { id }, ...options });
+  // findOneById(id: string, options: FindOneOptions<Skill> = {}) {
+  //   return this.skillRepository.findOne({ where: { id }, ...options });
+  // }
+
+  findOneByName(name: string, options: FindOneOptions<Skill> = {}) {
+    return this.skillRepository.findOne({ where: { name }, ...options });
   }
 
   async findAllByUserId(id: string): Promise<UserSkillOutput[]> {
@@ -43,26 +47,21 @@ export class SkillService {
     return this.skillRepository.save(data);
   }
 
-  private async getSkillId(skill: SkillInput): Promise<string> {
-    const { skillId, skillName } = skill;
-    if (skillId) {
-      await this.checkIfSkillExists(skillId);
+  private async getSkillId(name: string): Promise<string> {
+    const found = await this.findOneByName(name);
+
+    if (found) {
+      return found.id;
     }
 
-    let newSkillId = null;
-    if (skillName) {
-      ({ id: newSkillId } = await this.create({
-        name: skillName,
-      }));
-    }
-
-    return skillId || newSkillId;
+    const newSkill = await this.create({ name });
+    return newSkill.id;
   }
 
   saveUserSkills(userId: string, skills: SkillInput[]) {
-    return Promise.all([
+    return Promise.all(
       skills.map(async (s): Promise<UserSkill> => {
-        const id = await this.getSkillId(s);
+        const id = await this.getSkillId(s.name);
 
         return this.userSkillRepository.save({
           skill: { id },
@@ -70,13 +69,13 @@ export class SkillService {
           user: { id: userId },
         });
       }),
-    ]);
+    );
   }
 
   saveTicketSkills(ticketId: string, skills: SkillInput[]) {
-    return Promise.all([
+    return Promise.all(
       skills.map(async (s): Promise<TicketSkill> => {
-        const id = await this.getSkillId(s);
+        const id = await this.getSkillId(s.name);
 
         return this.ticketSkillRepository.save({
           skill: { id },
@@ -84,6 +83,6 @@ export class SkillService {
           ticket: { id: ticketId },
         });
       }),
-    ]);
+    );
   }
 }

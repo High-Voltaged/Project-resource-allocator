@@ -1,7 +1,24 @@
-import { ArgsType, Field, ObjectType, OmitType } from '@nestjs/graphql';
+import {
+  ArgsType,
+  Field,
+  ObjectType,
+  OmitType,
+  PartialType,
+} from '@nestjs/graphql';
 import { Skill, SkillLevel } from '~/skills/skill.entity';
-import { IsEnum, IsOptional, IsUUID, Max, Min } from 'class-validator';
+import {
+  ArrayMinSize,
+  IsEnum,
+  IsOptional,
+  IsUUID,
+  Max,
+  Min,
+  ValidateNested,
+} from 'class-validator';
 import { User, UserRole } from '../user.entity';
+import { RegisterInput } from '~/auth/dto/auth.dto';
+import { SkillInput } from '~/skills/dto/skill.dto';
+import { Type } from 'class-transformer';
 
 @ObjectType()
 export class UserSkillOutput {
@@ -44,4 +61,18 @@ export class ProjectUserOutput extends OmitType(User, [
 ]) {
   @Field()
   role: UserRole;
+}
+
+@ArgsType()
+export class UpdateMyProfileInput extends PartialType(
+  OmitType(RegisterInput, ['password']),
+) {}
+
+@ArgsType()
+export class UpdateMySkillsInput {
+  @ArrayMinSize(1)
+  @ValidateNested({ each: true })
+  @Type(() => SkillInput)
+  @Field(() => [SkillInput], { nullable: true })
+  skills: SkillInput[];
 }

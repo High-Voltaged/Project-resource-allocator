@@ -19,8 +19,9 @@ import { CurrentUser } from '~/auth/decorators/current_user.decorator';
 export class ProjectResolver {
   constructor(private readonly projectService: ProjectService) {}
 
+  @UseGuards(JwtAuthGuard)
   @Query(() => [Project])
-  projectsByUserId(@CurrentUser() user: User): Promise<Project[]> {
+  myProjects(@CurrentUser() user: User): Promise<Project[]> {
     return this.projectService.findAllByUserId(user.id);
   }
 

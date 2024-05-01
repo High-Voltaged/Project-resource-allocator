@@ -1,6 +1,6 @@
 import { Field, InputType, PickType } from '@nestjs/graphql';
 import { Skill, SkillLevel } from '../skill.entity';
-import { IsUUID, Max, Min, ValidateIf } from 'class-validator';
+import { Max, Min } from 'class-validator';
 
 export class SkillNameInput extends PickType(Skill, ['name']) {}
 
@@ -11,12 +11,6 @@ export class SkillInput {
   @Field()
   level: SkillLevel;
 
-  @ValidateIf((obj, v) => v || !obj.skillName)
-  @IsUUID()
-  @Field({ nullable: true })
-  skillId?: string;
-
-  @ValidateIf((obj, v) => v || !obj.skillId)
-  @Field({ nullable: true })
-  skillName?: string;
+  @Field()
+  name: string;
 }

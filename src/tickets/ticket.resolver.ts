@@ -33,7 +33,7 @@ export class TicketResolver {
     return this.ticketService.findOneById(id);
   }
 
-  //! unprotected query
+  @UseGuards(JwtAuthGuard)
   @Query(() => [Ticket])
   ticketsByUserId(@Args() { id }: UUIDInput) {
     return this.ticketService.findAllByUserId(id);
