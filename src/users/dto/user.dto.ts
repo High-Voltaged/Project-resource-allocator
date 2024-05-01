@@ -66,7 +66,10 @@ export class ProjectUserOutput extends OmitType(User, [
 @ArgsType()
 export class UpdateMyProfileInput extends PartialType(
   OmitType(RegisterInput, ['password']),
-) {}
+) {
+  @Field({ nullable: true })
+  isAvailable: boolean;
+}
 
 @ArgsType()
 export class UpdateMySkillsInput {
