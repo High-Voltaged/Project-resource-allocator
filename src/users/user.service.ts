@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { RegisterInput } from '~/auth/dto/auth.dto';
@@ -8,6 +8,7 @@ import { ProjectUsersInput } from './dto/user.dto';
 import { ProjectUser } from '~/projects/project_user.entity';
 import { UserSkill } from './user_skill.entity';
 import { Skill } from '~/skills/skill.entity';
+import authErrors from '~/auth/const/auth.errors';
 
 @Injectable()
 export class UserService {
@@ -73,6 +74,13 @@ export class UserService {
   }
 
   async updateUser(id: string, data: Partial<User>) {
+    if (data.email) {
+      const found = await this.findByEmail(data.email);
+      if (found) {
+        throw new BadRequestException(authErrors.EMEAIL_EXISTS);
+      }
+    }
+
     await this.userRepository.update(id, data);
     return this.findOneById(id);
   }

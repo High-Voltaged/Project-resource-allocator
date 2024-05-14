@@ -7,7 +7,7 @@ import {
 import { Request } from 'express';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import authErrors from './auth.constants';
+import authErrors from './const/auth.errors';
 import { LoginInput, RegisterInput } from './dto/auth.dto';
 import { UserService } from '~/users/user.service';
 import { User } from '~/users/user.entity';

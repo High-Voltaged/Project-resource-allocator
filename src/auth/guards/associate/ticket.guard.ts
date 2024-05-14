@@ -4,7 +4,7 @@ import { Reflector } from '@nestjs/core';
 import { User } from '~/users/user.entity';
 import { TicketService } from '~/tickets/ticket.service';
 import { ProjectService } from '~/projects/project.service';
-import authErrors from '~/auth/auth.constants';
+import authErrors from '~/auth/const/auth.errors';
 import { Roles } from '~/auth/decorators/roles.decorator';
 import { BaseAssociateGuard, matchRoles } from './base.guard';
 

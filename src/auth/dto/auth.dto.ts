@@ -1,6 +1,6 @@
 import { Field, ObjectType, ArgsType } from '@nestjs/graphql';
 import { IsEmail, Length } from 'class-validator';
-import { AUTH_VALIDATION } from '../const/auth.const';
+import { AUTH_VALIDATION } from '../const/auth.validation';
 
 @ArgsType()
 export class RegisterInput {

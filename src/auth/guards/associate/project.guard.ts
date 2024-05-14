@@ -4,7 +4,7 @@ import { User } from '~/users/user.entity';
 import { Reflector } from '@nestjs/core';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { Roles } from '~/auth/decorators/roles.decorator';
-import authErrors from '~/auth/auth.constants';
+import authErrors from '~/auth/const/auth.errors';
 import { ProjectService } from '~/projects/project.service';
 
 @Injectable()

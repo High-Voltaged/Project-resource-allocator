@@ -5,7 +5,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
-import authErrors from '~/auth/auth.constants';
+import authErrors from '~/auth/const/auth.errors';
 import { User } from '~/users/user.entity';
 
 export function matchRoles(userRole: string, requiredRoles: string[]): boolean {
