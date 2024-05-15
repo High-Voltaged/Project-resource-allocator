@@ -1,5 +1,10 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+} from 'typeorm';
 
 export enum ProjectType {
   Scrum,
@@ -22,6 +27,6 @@ export class Project {
   type: ProjectType;
 
   @Field()
-  @Column({ name: 'start_at', type: 'timestamptz' })
+  @CreateDateColumn({ name: 'start_at', type: 'timestamptz' })
   startAt: Date;
 }

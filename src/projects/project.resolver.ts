@@ -4,6 +4,7 @@ import { Project } from './project.entity';
 import {
   AddUserToProjectInput,
   CreateProjectInput,
+  MyProject,
   UpdateProjectInput,
 } from './dto/project.dto';
 import { Roles } from '~/auth/decorators/roles.decorator';
@@ -20,8 +21,8 @@ export class ProjectResolver {
   constructor(private readonly projectService: ProjectService) {}
 
   @UseGuards(JwtAuthGuard)
-  @Query(() => [Project])
-  myProjects(@CurrentUser() user: User): Promise<Project[]> {
+  @Query(() => [MyProject])
+  myProjects(@CurrentUser() user: User): Promise<MyProject[]> {
     return this.projectService.findAllByUserId(user.id);
   }
 

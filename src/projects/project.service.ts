@@ -5,6 +5,7 @@ import { Project } from './project.entity';
 import {
   AddUserToProjectInput,
   CreateProjectInput,
+  MyProject,
   UpdateProjectInput,
 } from './dto/project.dto';
 import projectErrors from './project.constants';
@@ -20,12 +21,19 @@ export class ProjectService {
     private projectUserRepository: Repository<ProjectUser>,
   ) {}
 
-  async findAllByUserId(id: string): Promise<Project[]> {
+  async findAllByUserId(id: string): Promise<MyProject[]> {
     return this.projectRepository
       .createQueryBuilder('p')
+      .select([
+        'p.id as id',
+        'p.name as name',
+        'p.type as type',
+        'p.start_at as "startAt"',
+        'pu.role as role',
+      ])
       .innerJoin(ProjectUser, 'pu', 'pu.project_id = p.id')
       .where('pu.user_id = :id', { id })
-      .getMany();
+      .getRawMany();
   }
 
   async findOneById(id: string, options: FindOneOptions<Project> = {}) {

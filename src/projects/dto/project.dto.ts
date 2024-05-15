@@ -1,18 +1,23 @@
-import { ArgsType, Field, PartialType } from '@nestjs/graphql';
-import { ProjectType } from '../project.entity';
+import {
+  ArgsType,
+  Field,
+  ObjectType,
+  PartialType,
+  registerEnumType,
+} from '@nestjs/graphql';
+import { Project, ProjectType } from '../project.entity';
 import { IsEnum, IsUUID } from 'class-validator';
 import { UserRole } from '~/users/user.entity';
+
+registerEnumType(ProjectType, { name: 'ProjectType' });
 
 @ArgsType()
 export class CreateProjectInput {
   @Field()
   name: string;
 
-  @Field()
+  @Field(() => ProjectType)
   type: ProjectType;
-
-  @Field()
-  startAt: Date;
 }
 
 @ArgsType()
@@ -33,5 +38,11 @@ export class AddUserToProjectInput {
 
   @IsEnum(UserRole)
   @Field()
+  role: UserRole;
+}
+
+@ObjectType()
+export class MyProject extends Project {
+  @Field(() => UserRole)
   role: UserRole;
 }

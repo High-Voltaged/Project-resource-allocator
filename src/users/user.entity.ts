@@ -1,4 +1,4 @@
-import { Field, ObjectType, OmitType } from '@nestjs/graphql';
+import { Field, ObjectType, OmitType, registerEnumType } from '@nestjs/graphql';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -13,6 +13,8 @@ export enum UserRole {
   Manager = 'manager',
   Employee = 'employee',
 }
+
+registerEnumType(UserRole, { name: 'UserRole' });
 
 @ObjectType()
 @Entity({ name: 'users' })

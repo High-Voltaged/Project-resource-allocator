@@ -1,7 +1,7 @@
 import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { TicketService } from './ticket.service';
 import { Ticket } from './ticket.entity';
-import { NotFoundException, UseGuards } from '@nestjs/common';
+import { UseGuards } from '@nestjs/common';
 import { Roles } from '~/auth/decorators/roles.decorator';
 import { User, UserRole } from '~/users/user.entity';
 import {
@@ -11,7 +11,6 @@ import {
 } from './dto/ticket.dto';
 import { JwtAuthGuard } from '~/auth/guards/jwt.guard';
 import { CurrentUser } from '~/auth/decorators/current_user.decorator';
-import ticketErrors from './ticket.constants';
 import { UUIDInput } from '~/shared/dto';
 import { ProjectGuard } from '~/auth/guards/associate/project.guard';
 import { TicketGuard } from '~/auth/guards/associate/ticket.guard';
