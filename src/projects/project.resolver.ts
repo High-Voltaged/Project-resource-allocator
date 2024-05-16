@@ -47,8 +47,11 @@ export class ProjectResolver {
   @UseGuards(ProjectGuard)
   @Roles([UserRole.Admin, UserRole.Manager])
   @Mutation(() => Boolean)
-  async addUserToProject(@Args() data: AddUserToProjectInput) {
-    await this.projectService.addUserToProject(data);
+  async addUserToProject(
+    @CurrentUser() user: User,
+    @Args() data: AddUserToProjectInput,
+  ) {
+    await this.projectService.addUserToProject(user.email, data);
     return true;
   }
 

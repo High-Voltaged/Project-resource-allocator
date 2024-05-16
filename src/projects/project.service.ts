@@ -88,8 +88,16 @@ export class ProjectService {
     return this.projectRepository.save(project);
   }
 
-  async addUserToProject(data: AddUserToProjectInput) {
+  async addUserToProject(
+    currentUserEmail: string,
+    data: AddUserToProjectInput,
+  ) {
     const { email, ...rest } = data;
+
+    if (currentUserEmail === email) {
+      throw new BadRequestException(authErrors.ROLE_MISMATCH);
+    }
+
     const user = await this.userService.findOneByEmail(email);
     if (!user) {
       throw new BadRequestException(authErrors.EMAIL_NOT_FOUND);
