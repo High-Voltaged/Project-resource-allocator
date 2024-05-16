@@ -36,7 +36,7 @@ export class UserService {
       .getOne();
   }
 
-  findByEmail(email: string) {
+  findOneByEmail(email: string) {
     return this.userRepository.findOne({
       select: {
         id: true,
@@ -57,10 +57,12 @@ export class UserService {
         'u.first_name as "firstName"',
         'u.last_name as "lastName"',
         'u.email as email',
+        'pu.role as role',
       ])
-      .addSelect('pu.role as role')
       .innerJoin(ProjectUser, 'pu', 'pu.user_id = u.id')
-      .where('pu.project_id = :projectId', { projectId });
+      .where('pu.project_id = :projectId', { projectId })
+      .orderBy('pu.role', 'DESC')
+      .addOrderBy('u.first_name', 'ASC');
 
     if (role) {
       qb.andWhere('pu.role = :role', { role });
@@ -75,7 +77,7 @@ export class UserService {
 
   async updateUser(id: string, data: Partial<User>) {
     if (data.email) {
-      const found = await this.findByEmail(data.email);
+      const found = await this.findOneByEmail(data.email);
       if (found) {
         throw new BadRequestException(authErrors.EMEAIL_EXISTS);
       }

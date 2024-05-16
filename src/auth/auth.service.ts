@@ -30,7 +30,7 @@ export class AuthService {
   }
 
   async register({ password, ...user }: RegisterInput) {
-    const found = await this.userService.findByEmail(user.email);
+    const found = await this.userService.findOneByEmail(user.email);
     if (found) {
       throw new BadRequestException(authErrors.EMEAIL_EXISTS);
     }
@@ -55,7 +55,7 @@ export class AuthService {
   }
 
   async validateUser({ email, password }: LoginInput) {
-    const user = await this.userService.findByEmail(email);
+    const user = await this.userService.findOneByEmail(email);
 
     if (user && (await bcrypt.compare(password, user.password))) {
       return user;

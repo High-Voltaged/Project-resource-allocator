@@ -9,9 +9,9 @@ import {
 import { Ticket } from '../tickets/ticket.entity';
 
 export enum UserRole {
-  Admin = 'admin',
-  Manager = 'manager',
-  Employee = 'employee',
+  Admin = 'Admin',
+  Manager = 'Manager',
+  Employee = 'Employee',
 }
 
 registerEnumType(UserRole, { name: 'UserRole' });

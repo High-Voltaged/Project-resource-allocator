@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOneOptions, Repository } from 'typeorm';
 import { Project } from './project.entity';
@@ -11,6 +15,8 @@ import {
 import projectErrors from './project.constants';
 import { ProjectUser } from './project_user.entity';
 import { UserRole } from '~/users/user.entity';
+import { UserService } from '~/users/user.service';
+import authErrors from '~/auth/const/auth.errors';
 
 @Injectable()
 export class ProjectService {
@@ -19,6 +25,7 @@ export class ProjectService {
     private projectRepository: Repository<Project>,
     @InjectRepository(ProjectUser)
     private projectUserRepository: Repository<ProjectUser>,
+    private userService: UserService,
   ) {}
 
   async findAllByUserId(id: string): Promise<MyProject[]> {
@@ -33,6 +40,7 @@ export class ProjectService {
       ])
       .innerJoin(ProjectUser, 'pu', 'pu.project_id = p.id')
       .where('pu.user_id = :id', { id })
+      .orderBy('p.start_at', 'DESC')
       .getRawMany();
   }
 
@@ -71,8 +79,16 @@ export class ProjectService {
     return this.projectRepository.save(project);
   }
 
-  addUserToProject(data: AddUserToProjectInput) {
-    return this.projectUserRepository.save(data as ProjectUser);
+  async addUserToProject(data: AddUserToProjectInput) {
+    const { email, ...rest } = data;
+    const user = await this.userService.findOneByEmail(email);
+    if (!user) {
+      throw new BadRequestException(authErrors.EMAIL_NOT_FOUND);
+    }
+
+    const projectUser = { userId: user.id, ...rest };
+
+    return this.projectUserRepository.save(projectUser as ProjectUser);
   }
 
   async update({ id, ...data }: UpdateProjectInput) {
@@ -81,6 +97,20 @@ export class ProjectService {
   }
 
   async delete(id: string): Promise<void> {
-    await this.projectRepository.delete(id);
+    await this.projectRepository.manager.transaction(async (entityManager) => {
+      await entityManager
+        .createQueryBuilder()
+        .delete()
+        .from(ProjectUser)
+        .where('projectId = :id', { id })
+        .execute();
+
+      await entityManager
+        .createQueryBuilder()
+        .delete()
+        .from(Project)
+        .where('id = :id', { id })
+        .execute();
+    });
   }
 }

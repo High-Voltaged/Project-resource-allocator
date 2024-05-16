@@ -1,4 +1,4 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field, ObjectType, registerEnumType } from '@nestjs/graphql';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -7,9 +7,11 @@ import {
 } from 'typeorm';
 
 export enum ProjectType {
-  Scrum,
-  Kanban,
+  Scrum = 'Scrum',
+  Kanban = 'Kanban',
 }
+
+registerEnumType(ProjectType, { name: 'ProjectType' });
 
 @ObjectType()
 @Entity({ name: 'projects' })
@@ -22,8 +24,12 @@ export class Project {
   @Column()
   name: string;
 
-  @Field()
-  @Column({ default: ProjectType.Scrum })
+  @Field(() => ProjectType)
+  @Column({
+    type: 'enum',
+    enum: ProjectType,
+    default: ProjectType.Scrum,
+  })
   type: ProjectType;
 
   @Field()

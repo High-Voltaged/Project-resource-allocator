@@ -1,7 +1,6 @@
 import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { CommentService } from './comment.service';
 import { Comment } from './comment.entity';
-import { Roles } from '~/auth/decorators/roles.decorator';
 import { User, UserRole } from '~/users/user.entity';
 import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '~/auth/guards/jwt.guard';
