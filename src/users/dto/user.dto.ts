@@ -19,6 +19,7 @@ import { User, UserRole } from '../user.entity';
 import { RegisterInput } from '~/auth/dto/auth.dto';
 import { SkillInput } from '~/skills/dto/skill.dto';
 import { Type } from 'class-transformer';
+import { PaginatedType, PaginationArgs } from '~/shared/pagination.dto';
 
 @ObjectType()
 export class UserSkillOutput {
@@ -42,25 +43,31 @@ export class UserWithSkillsOutput extends OmitType(User, [
 
 @ObjectType()
 @ArgsType()
-export class ProjectUsersInput {
+export class ProjectUsersInput extends PaginationArgs {
   @IsUUID()
   @Field()
   projectId: string;
 
   @IsOptional()
   @IsEnum(UserRole)
-  @Field({ nullable: true })
+  @Field(() => UserRole, { nullable: true })
   role?: UserRole;
 }
 
 @ObjectType()
-export class ProjectUserOutput extends OmitType(User, [
+export class ProjectUser extends OmitType(User, [
   'isAvailable',
   'password',
   'tickets',
 ]) {
   @Field()
   role: UserRole;
+}
+
+@ObjectType()
+export class ProjectUsersOutput extends PaginatedType {
+  @Field(() => [ProjectUser])
+  items: ProjectUser[];
 }
 
 @ArgsType()

@@ -9,7 +9,7 @@ import { Project } from './project.entity';
 import {
   AddUserToProjectInput,
   CreateProjectInput,
-  MyProject,
+  MyProjectsOutput,
   UpdateProjectInput,
 } from './dto/project.dto';
 import projectErrors from './project.constants';
@@ -17,6 +17,7 @@ import { ProjectUser } from './project_user.entity';
 import { UserRole } from '~/users/user.entity';
 import { UserService } from '~/users/user.service';
 import authErrors from '~/auth/const/auth.errors';
+import { PaginationArgs } from '~/shared/pagination.dto';
 
 @Injectable()
 export class ProjectService {
@@ -28,8 +29,11 @@ export class ProjectService {
     private userService: UserService,
   ) {}
 
-  async findAllByUserId(id: string): Promise<MyProject[]> {
-    return this.projectRepository
+  async findAllByUserId(
+    id: string,
+    { limit, offset }: PaginationArgs,
+  ): Promise<MyProjectsOutput> {
+    const qb = this.projectRepository
       .createQueryBuilder('p')
       .select([
         'p.id as id',
@@ -40,8 +44,13 @@ export class ProjectService {
       ])
       .innerJoin(ProjectUser, 'pu', 'pu.project_id = p.id')
       .where('pu.user_id = :id', { id })
-      .orderBy('p.start_at', 'DESC')
-      .getRawMany();
+      .orderBy('p.start_at', 'DESC');
+
+    const [items, count] = await Promise.all([
+      qb.limit(limit).offset(offset).getRawMany(),
+      qb.getCount(),
+    ]);
+    return { items, count };
   }
 
   async findOneById(id: string, options: FindOneOptions<Project> = {}) {

@@ -2,6 +2,7 @@ import { ArgsType, Field, ObjectType, PartialType } from '@nestjs/graphql';
 import { Project, ProjectType } from '../project.entity';
 import { IsEnum, IsUUID } from 'class-validator';
 import { UserRole } from '~/users/user.entity';
+import { PaginatedType } from '~/shared/pagination.dto';
 
 @ArgsType()
 export class CreateProjectInput {
@@ -27,8 +28,7 @@ export class AddUserToProjectInput {
   @Field()
   email: string;
 
-  @IsEnum(UserRole)
-  @Field()
+  @Field(() => UserRole)
   role: UserRole;
 }
 
@@ -36,4 +36,10 @@ export class AddUserToProjectInput {
 export class MyProject extends Project {
   @Field(() => UserRole)
   role: UserRole;
+}
+
+@ObjectType()
+export class MyProjectsOutput extends PaginatedType {
+  @Field(() => [MyProject])
+  items: MyProject[];
 }

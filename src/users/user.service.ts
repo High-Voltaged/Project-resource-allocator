@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { RegisterInput } from '~/auth/dto/auth.dto';
 import { User } from './user.entity';
 import { SkillService } from '~/skills/skill.service';
-import { ProjectUsersInput } from './dto/user.dto';
+import { ProjectUsersInput, ProjectUsersOutput } from './dto/user.dto';
 import { ProjectUser } from '~/projects/project_user.entity';
 import { UserSkill } from './user_skill.entity';
 import { Skill } from '~/skills/skill.entity';
@@ -49,7 +49,12 @@ export class UserService {
     });
   }
 
-  findAllByProjectId({ projectId, role }: ProjectUsersInput) {
+  async findAllByProjectId({
+    projectId,
+    role,
+    limit,
+    offset,
+  }: ProjectUsersInput): Promise<ProjectUsersOutput> {
     const qb = this.userRepository
       .createQueryBuilder('u')
       .select([
@@ -61,14 +66,18 @@ export class UserService {
       ])
       .innerJoin(ProjectUser, 'pu', 'pu.user_id = u.id')
       .where('pu.project_id = :projectId', { projectId })
-      .orderBy('pu.role', 'DESC')
+      .orderBy('pu.role', 'ASC')
       .addOrderBy('u.first_name', 'ASC');
 
     if (role) {
       qb.andWhere('pu.role = :role', { role });
     }
 
-    return qb.getRawMany();
+    const [items, count] = await Promise.all([
+      qb.limit(limit).offset(offset).getRawMany(),
+      qb.getCount(),
+    ]);
+    return { items, count };
   }
 
   async createUser(data: RegisterInput) {

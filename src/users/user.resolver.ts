@@ -6,8 +6,8 @@ import { JwtAuthGuard } from '~/auth/guards/jwt.guard';
 import { UUIDInput } from '~/shared/dto';
 import { SkillService } from '~/skills/skill.service';
 import {
-  ProjectUserOutput,
   ProjectUsersInput,
+  ProjectUsersOutput,
   UpdateMyProfileInput,
   UpdateMySkillsInput,
   UserSkillOutput,
@@ -43,8 +43,8 @@ export class UserResolver {
   }
 
   @UseGuards(ProjectGuard)
-  @Query(() => [ProjectUserOutput])
-  projectUsers(@Args() data: ProjectUsersInput): Promise<ProjectUserOutput[]> {
+  @Query(() => ProjectUsersOutput)
+  projectUsers(@Args() data: ProjectUsersInput): Promise<ProjectUsersOutput> {
     return this.userService.findAllByProjectId(data);
   }
 

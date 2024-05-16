@@ -4,7 +4,7 @@ import { Project } from './project.entity';
 import {
   AddUserToProjectInput,
   CreateProjectInput,
-  MyProject,
+  MyProjectsOutput,
   UpdateProjectInput,
 } from './dto/project.dto';
 import { Roles } from '~/auth/decorators/roles.decorator';
@@ -14,6 +14,7 @@ import { JwtAuthGuard } from '~/auth/guards/jwt.guard';
 import { UUIDInput } from '~/shared/dto';
 import { ProjectGuard } from '~/auth/guards/associate/project.guard';
 import { CurrentUser } from '~/auth/decorators/current_user.decorator';
+import { PaginationArgs } from '~/shared/pagination.dto';
 
 @UseGuards(JwtAuthGuard)
 @Resolver(() => Project)
@@ -21,9 +22,12 @@ export class ProjectResolver {
   constructor(private readonly projectService: ProjectService) {}
 
   @UseGuards(JwtAuthGuard)
-  @Query(() => [MyProject])
-  myProjects(@CurrentUser() user: User): Promise<MyProject[]> {
-    return this.projectService.findAllByUserId(user.id);
+  @Query(() => MyProjectsOutput)
+  myProjects(
+    @CurrentUser() user: User,
+    @Args() args: PaginationArgs,
+  ): Promise<MyProjectsOutput> {
+    return this.projectService.findAllByUserId(user.id, args);
   }
 
   @UseGuards(ProjectGuard)
