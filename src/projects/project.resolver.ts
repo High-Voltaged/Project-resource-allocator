@@ -4,6 +4,7 @@ import { Project } from './project.entity';
 import {
   AddUserToProjectInput,
   CreateProjectInput,
+  MyProject,
   MyProjectsOutput,
   UpdateProjectInput,
 } from './dto/project.dto';
@@ -31,9 +32,12 @@ export class ProjectResolver {
   }
 
   @UseGuards(ProjectGuard)
-  @Query(() => Project)
-  projectById(@Args() { id }: UUIDInput): Promise<Project> {
-    return this.projectService.findOneById(id);
+  @Query(() => MyProject)
+  projectById(
+    @CurrentUser() user: User,
+    @Args() { id }: UUIDInput,
+  ): Promise<MyProject> {
+    return this.projectService.findOneByIdWithRole(id, user.id);
   }
 
   @Mutation(() => Project)

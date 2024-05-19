@@ -66,6 +66,28 @@ export class ProjectService {
     return found;
   }
 
+  async findOneByIdWithRole(id: string, userId: string) {
+    const found = await this.projectRepository
+      .createQueryBuilder('p')
+      .select([
+        'p.id as id',
+        'p.name as name',
+        'p.type as type',
+        'p.start_at as "startAt"',
+        'pu.role as role',
+      ])
+      .innerJoin(ProjectUser, 'pu', 'pu.project_id = p.id')
+      .where('p.id = :id', { id })
+      .andWhere('pu.user_id = :userId', { userId })
+      .getRawOne();
+
+    if (!found) {
+      throw new NotFoundException(projectErrors.NOT_FOUND);
+    }
+
+    return found;
+  }
+
   findProjectUser(projectId: string, userId: string) {
     return this.projectUserRepository.findOne({
       where: {
