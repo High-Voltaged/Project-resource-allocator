@@ -1,4 +1,4 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field, ObjectType, registerEnumType } from '@nestjs/graphql';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -16,10 +16,20 @@ export enum TicketStatus {
   backlog = 'backlog',
   todo = 'todo',
   inprogress = 'inprogress',
-  review = 'review',
   testing = 'testing',
   deployed = 'deployed',
 }
+
+export enum TicketPriority {
+  lowest = 'lowest',
+  low = 'low',
+  medium = 'medium',
+  high = 'high',
+  highest = 'highest',
+}
+
+registerEnumType(TicketStatus, { name: 'TicketStatus' });
+registerEnumType(TicketPriority, { name: 'TicketPriority' });
 
 @ObjectType()
 @Entity({ name: 'tickets' })
@@ -36,30 +46,36 @@ export class Ticket {
   @Column()
   description: string;
 
-  @Field()
+  @Field(() => TicketStatus)
   @Column({
     type: 'enum',
     enum: TicketStatus,
     default: TicketStatus.todo,
   })
-  status: string;
+  status: TicketStatus;
 
-  // Consider 0 the lowest priority
-  @Field()
-  @Column({ default: 0 })
-  priority: number;
+  @Field(() => TicketPriority)
+  @Column({
+    type: 'enum',
+    enum: TicketPriority,
+    default: TicketPriority.lowest,
+  })
+  priority: TicketPriority;
 
+  @Field(() => Date)
   @CreateDateColumn()
   createdAt: Date;
 
-  @Field()
-  @Column({ name: 'due_to', type: 'date' })
-  dueTo: Date;
+  @Field({ nullable: true })
+  @Column({ name: 'due_to', type: 'date', nullable: true })
+  dueTo?: Date;
 
+  @Field(() => Project)
   @ManyToOne(() => Project)
   @JoinColumn({ name: 'project_id' })
   project: Project;
 
+  @Field(() => User)
   @ManyToOne(() => User)
   @JoinColumn({ name: 'reporter_id' })
   reporter: User;

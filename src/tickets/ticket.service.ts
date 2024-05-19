@@ -14,10 +14,11 @@ import {
 import { ProjectService } from '~/projects/project.service';
 import projectErrors from '~/projects/project.constants';
 import ticketErrors from './ticket.constants';
-import { SkillService } from '~/skills/skill.service';
 import { User } from '~/users/user.entity';
 import { UserService } from '~/users/user.service';
 import userErrors from '~/users/user.constants';
+import { TicketSkill } from './ticket_skill.entity';
+import { Skill } from '~/skills/skill.entity';
 
 @Injectable()
 export class TicketService {
@@ -25,7 +26,6 @@ export class TicketService {
     @InjectRepository(Ticket)
     private ticketRepository: Repository<Ticket>,
     private projectService: ProjectService,
-    private skillService: SkillService,
     private userService: UserService,
   ) {}
 
@@ -37,6 +37,7 @@ export class TicketService {
 
     return this.ticketRepository.find({
       where: { project: { id: projectId } },
+      relations: ['reporter'],
     });
   }
 
@@ -63,8 +64,25 @@ export class TicketService {
     }
   }
 
+  async findOneWithRelations(id: string) {
+    try {
+      const ticket = await this.ticketRepository
+        .createQueryBuilder('t')
+        .select()
+        .innerJoin(TicketSkill, 'ts', 'ts.ticket_id = :id', { id })
+        .innerJoinAndMapMany('t.skills', Skill, 's', 'ts.skill_id = s.id')
+        .leftJoinAndSelect('t.assignees', 'assignees')
+        .where('t.id = :id', { id })
+        .getOneOrFail();
+
+      return ticket;
+    } catch (err) {
+      throw new NotFoundException(ticketErrors.NOT_FOUND);
+    }
+  }
+
   async createTicket(
-    { skills, ...ticket }: CreateTicketInput,
+    ticket: CreateTicketInput,
     reporterId: string,
   ): Promise<Ticket> {
     const created = await this.ticketRepository.save({
@@ -72,8 +90,6 @@ export class TicketService {
       project: { id: ticket.projectId },
       ...ticket,
     });
-
-    await this.skillService.saveTicketSkills(created.id, skills);
 
     return created;
   }

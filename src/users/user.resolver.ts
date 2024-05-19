@@ -49,9 +49,9 @@ export class UserResolver {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Query(() => UserOutput)
+  @Query(() => UserWithSkillsOutput)
   myProfile(@CurrentUser() { id }: User) {
-    return this.userService.findOneById(id);
+    return this.userService.findOneByIdWithSkills(id);
   }
 
   @UseGuards(JwtAuthGuard)

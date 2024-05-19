@@ -6,7 +6,7 @@ import skillErrors from './skill.constants';
 import { SkillInput, SkillNameInput } from './dto/skill.dto';
 import { UserSkill } from '~/users/user_skill.entity';
 import { UserSkillOutput } from '~/users/dto/user.dto';
-import { TicketSkill } from './ticket_skill.entity';
+import { TicketSkill } from '../tickets/ticket_skill.entity';
 
 @Injectable()
 export class SkillService {
@@ -32,6 +32,10 @@ export class SkillService {
 
   findOneByName(name: string, options: FindOneOptions<Skill> = {}) {
     return this.skillRepository.findOne({ where: { name }, ...options });
+  }
+
+  findAll() {
+    return this.skillRepository.find();
   }
 
   async findAllByUserId(id: string): Promise<UserSkillOutput[]> {

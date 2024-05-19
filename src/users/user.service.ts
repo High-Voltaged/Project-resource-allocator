@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { RegisterInput } from '~/auth/dto/auth.dto';
 import { User } from './user.entity';
-import { SkillService } from '~/skills/skill.service';
 import { ProjectUsersInput, ProjectUsersOutput } from './dto/user.dto';
 import { ProjectUser } from '~/projects/project_user.entity';
 import { UserSkill } from './user_skill.entity';
@@ -15,7 +14,6 @@ export class UserService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
-    private skillService: SkillService,
   ) {}
 
   findAll(): Promise<User[]> {

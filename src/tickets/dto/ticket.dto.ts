@@ -1,8 +1,14 @@
-import { ArgsType, Field, PartialType } from '@nestjs/graphql';
-import { TicketStatus } from '../ticket.entity';
-import { ArrayMinSize, IsEnum, IsUUID, ValidateNested } from 'class-validator';
-import { SkillInput } from '~/skills/dto/skill.dto';
-import { Type } from 'class-transformer';
+import {
+  ArgsType,
+  Field,
+  ObjectType,
+  OmitType,
+  PartialType,
+} from '@nestjs/graphql';
+import { Ticket, TicketPriority, TicketStatus } from '../ticket.entity';
+import { IsUUID } from 'class-validator';
+import { UpdateMySkillsInput } from '~/users/dto/user.dto';
+import { Skill } from '~/skills/skill.entity';
 
 @ArgsType()
 export class CreateTicketInput {
@@ -12,29 +18,24 @@ export class CreateTicketInput {
   @Field()
   description: string;
 
-  @Field({ defaultValue: TicketStatus.todo })
-  @IsEnum(TicketStatus)
+  @Field(() => TicketStatus, { defaultValue: TicketStatus.todo })
   status: TicketStatus;
 
-  @Field({ defaultValue: 0 })
-  priority: number;
+  @Field(() => TicketPriority, { defaultValue: TicketPriority.lowest })
+  priority: TicketPriority;
 
-  @Field()
+  @Field({ nullable: true })
   dueTo: Date;
 
   @Field()
   @IsUUID()
   projectId: string;
-
-  @ArrayMinSize(1)
-  @ValidateNested({ each: true })
-  @Type(() => SkillInput)
-  @Field(() => [SkillInput])
-  skills: SkillInput[];
 }
 
 @ArgsType()
-export class UpdateTicketInput extends PartialType(CreateTicketInput) {
+export class UpdateTicketInput extends PartialType(
+  OmitType(CreateTicketInput, ['projectId']),
+) {
   @IsUUID()
   @Field()
   id: string;
@@ -49,4 +50,16 @@ export class AssignTicketInput {
   @IsUUID()
   @Field()
   ticketId: string;
+}
+
+@ArgsType()
+export class UpdateTicketSkillsInput extends UpdateMySkillsInput {
+  @Field()
+  ticketId: string;
+}
+
+@ObjectType()
+export class TicketWithRelationsOutput extends Ticket {
+  @Field(() => [Skill])
+  skills: Skill[];
 }
