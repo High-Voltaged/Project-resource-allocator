@@ -70,13 +70,16 @@ export class Ticket {
   @Column({ name: 'due_to', type: 'date', nullable: true })
   dueTo?: Date;
 
+  @Field()
+  projectId: string;
+
   @Field(() => Project)
-  @ManyToOne(() => Project)
+  @ManyToOne(() => Project, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'project_id' })
   project: Project;
 
   @Field(() => User)
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn({ name: 'reporter_id' })
   reporter: User;
 

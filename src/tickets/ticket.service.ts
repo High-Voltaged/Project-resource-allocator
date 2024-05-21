@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -19,6 +20,7 @@ import { UserService } from '~/users/user.service';
 import userErrors from '~/users/user.constants';
 import { TicketSkill } from './ticket_skill.entity';
 import { Skill } from '~/skills/skill.entity';
+import authErrors from '~/auth/const/auth.errors';
 
 @Injectable()
 export class TicketService {
@@ -69,9 +71,11 @@ export class TicketService {
       const ticket = await this.ticketRepository
         .createQueryBuilder('t')
         .select()
-        .innerJoin(TicketSkill, 'ts', 'ts.ticket_id = :id', { id })
-        .innerJoinAndMapMany('t.skills', Skill, 's', 'ts.skill_id = s.id')
+        .leftJoin(TicketSkill, 'ts', 'ts.ticket_id = :id', { id })
+        .leftJoinAndMapMany('t.skills', Skill, 's', 'ts.skill_id = s.id')
         .leftJoinAndSelect('t.assignees', 'assignees')
+        .leftJoinAndSelect('t.reporter', 'reporter')
+        .loadRelationIdAndMap('t.projectId', 't.project')
         .where('t.id = :id', { id })
         .getOneOrFail();
 
@@ -94,7 +98,7 @@ export class TicketService {
     return created;
   }
 
-  async assignTicketToUser({ ticketId, userId }: AssignTicketInput) {
+  async assignmentPreCheck({ ticketId, userId }: AssignTicketInput) {
     const ticket = await this.findOneById(ticketId, {
       relations: ['assignees', 'project'],
     });
@@ -107,6 +111,11 @@ export class TicketService {
     if (!projectUser) {
       throw new BadRequestException(projectErrors.NO_PROJECT_USER);
     }
+    return ticket;
+  }
+
+  async assignTicketToUser({ ticketId, userId }: AssignTicketInput) {
+    const ticket = await this.assignmentPreCheck({ ticketId, userId });
 
     const alreadyAssigned = ticket.assignees.some(
       (assignee) => assignee.id === userId,
@@ -121,12 +130,36 @@ export class TicketService {
     await this.ticketRepository.save(ticket);
   }
 
+  async unassignTicketFromUser({ ticketId, userId }: AssignTicketInput) {
+    const ticket = await this.assignmentPreCheck({ ticketId, userId });
+
+    const notAssigned = ticket.assignees.every(
+      (assignee) => assignee.id !== userId,
+    );
+
+    if (notAssigned) {
+      throw new BadRequestException(ticketErrors.ALREADY_ASSIGNED);
+    }
+
+    ticket.assignees = ticket.assignees.filter((a) => a.id !== userId);
+
+    await this.ticketRepository.save(ticket);
+  }
+
   async updateTicket({ id, ...data }: UpdateTicketInput) {
     await this.ticketRepository.update(id, data);
     return this.ticketRepository.findOne({ where: { id } });
   }
 
-  deleteTicket(ticketId: string) {
+  async deleteTicket(userId: string, ticketId: string) {
+    const ticket = await this.findOneById(ticketId, {
+      relations: ['reporter'],
+    });
+
+    if (ticket.reporter.id !== userId) {
+      throw new ForbiddenException(authErrors.ROLE_MISMATCH);
+    }
+
     return this.ticketRepository.delete(ticketId);
   }
 }

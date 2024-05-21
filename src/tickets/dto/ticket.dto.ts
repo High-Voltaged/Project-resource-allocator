@@ -58,8 +58,23 @@ export class UpdateTicketSkillsInput extends UpdateMySkillsInput {
   ticketId: string;
 }
 
+@ArgsType()
+export class RemoveTicketSkillsInput {
+  @Field()
+  ticketId: string;
+
+  @Field(() => [String])
+  skillNames: string[];
+}
+
 @ObjectType()
 export class TicketWithRelationsOutput extends Ticket {
   @Field(() => [Skill])
   skills: Skill[];
+}
+
+@ArgsType()
+export class AddSkillInput {
+  @Field()
+  name: string;
 }

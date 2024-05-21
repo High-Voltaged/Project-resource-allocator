@@ -5,8 +5,10 @@ import { UseGuards } from '@nestjs/common';
 import { Roles } from '~/auth/decorators/roles.decorator';
 import { User, UserRole } from '~/users/user.entity';
 import {
+  AddSkillInput,
   AssignTicketInput,
   CreateTicketInput,
+  RemoveTicketSkillsInput,
   TicketWithRelationsOutput,
   UpdateTicketInput,
   UpdateTicketSkillsInput,
@@ -51,6 +53,13 @@ export class TicketResolver {
     return this.skillService.findAll();
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Mutation(() => Boolean)
+  async addSkill(@Args() { name }: AddSkillInput) {
+    await this.skillService.create({ name });
+    return true;
+  }
+
   @UseGuards(ProjectGuard)
   @Mutation(() => Ticket)
   createTicket(
@@ -70,10 +79,27 @@ export class TicketResolver {
   }
 
   @UseGuards(TicketGuard)
+  @Mutation(() => Boolean)
+  async removeTicketSkills(
+    @Args() { ticketId, skillNames }: RemoveTicketSkillsInput,
+  ) {
+    await this.skillService.removeTicketSkills(ticketId, skillNames);
+    return true;
+  }
+
+  @UseGuards(TicketGuard)
   @Roles([UserRole.Admin, UserRole.Manager])
   @Mutation(() => Boolean)
   async assignTicketToUser(@Args() data: AssignTicketInput) {
     await this.ticketService.assignTicketToUser(data);
+    return true;
+  }
+
+  @UseGuards(TicketGuard)
+  @Roles([UserRole.Admin, UserRole.Manager])
+  @Mutation(() => Boolean)
+  async unassignTicketFromUser(@Args() data: AssignTicketInput) {
+    await this.ticketService.unassignTicketFromUser(data);
     return true;
   }
 
@@ -84,10 +110,12 @@ export class TicketResolver {
   }
 
   @UseGuards(TicketGuard)
-  @Roles([UserRole.Admin, UserRole.Manager])
   @Mutation(() => Boolean)
-  async deleteTicket(@Args() { id }: UUIDInput): Promise<boolean> {
-    await this.ticketService.deleteTicket(id);
+  async deleteTicket(
+    @CurrentUser() user: User,
+    @Args() { id }: UUIDInput,
+  ): Promise<boolean> {
+    await this.ticketService.deleteTicket(user.id, id);
     return true;
   }
 }
