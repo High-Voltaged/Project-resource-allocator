@@ -89,4 +89,42 @@ export class SkillService {
       }),
     );
   }
+
+  removeUserSkills(userId: string, skillNames: string[]) {
+    return Promise.all(
+      skillNames.map(async (s): Promise<void> => {
+        const id = await this.getSkillId(s);
+
+        const userSkill = await this.userSkillRepository.findOne({
+          where: {
+            skill: { id },
+            user: { id: userId },
+          },
+        });
+
+        if (userSkill) {
+          await this.userSkillRepository.remove(userSkill);
+        }
+      }),
+    );
+  }
+
+  removeTicketSkills(ticketId: string, skillNames: string[]) {
+    return Promise.all(
+      skillNames.map(async (s): Promise<void> => {
+        const id = await this.getSkillId(s);
+
+        const ticketSkill = await this.ticketSkillRepository.findOne({
+          where: {
+            skill: { id },
+            ticket: { id: ticketId },
+          },
+        });
+
+        if (ticketSkill) {
+          await this.ticketSkillRepository.remove(ticketSkill);
+        }
+      }),
+    );
+  }
 }

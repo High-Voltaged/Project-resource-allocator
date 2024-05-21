@@ -28,8 +28,8 @@ export class UserService {
     return this.userRepository
       .createQueryBuilder('u')
       .select()
-      .innerJoin(UserSkill, 'us', 'us.user_id = :id', { id })
-      .innerJoinAndMapMany('u.skills', Skill, 's', 'us.skill_id = s.id')
+      .leftJoin(UserSkill, 'us', 'us.user_id = :id', { id })
+      .leftJoinAndMapMany('u.skills', Skill, 's', 'us.skill_id = s.id')
       .where('u.id = :id', { id })
       .getOne();
   }
@@ -69,6 +69,14 @@ export class UserService {
 
     if (role) {
       qb.andWhere('pu.role = :role', { role });
+    }
+
+    if (limit === 0) {
+      const [items, count] = await Promise.all([
+        qb.getRawMany(),
+        qb.getCount(),
+      ]);
+      return { items, count };
     }
 
     const [items, count] = await Promise.all([

@@ -9,14 +9,14 @@ export class UserSkill {
   })
   level: SkillLevel;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
   user: User;
 
   @PrimaryColumn({ name: 'user_id' })
   userId: string;
 
-  @ManyToOne(() => Skill)
+  @ManyToOne(() => Skill, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'skill_id' })
   skill: Skill;
 

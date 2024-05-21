@@ -1,11 +1,14 @@
 import { ArgsType, Field, ObjectType, PartialType } from '@nestjs/graphql';
 import { Project, ProjectType } from '../project.entity';
-import { IsEnum, IsUUID } from 'class-validator';
+import { IsEnum, IsUUID, Max, Min } from 'class-validator';
 import { UserRole } from '~/users/user.entity';
 import { PaginatedType } from '~/shared/pagination.dto';
+import { PROJECT_VALIDATION } from '../project.validation';
 
 @ArgsType()
 export class CreateProjectInput {
+  @Min(PROJECT_VALIDATION.NAME_MIN_LENGTH)
+  @Max(PROJECT_VALIDATION.NAME_MAX_LENGTH)
   @Field()
   name: string;
 

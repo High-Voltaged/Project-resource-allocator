@@ -8,6 +8,7 @@ import { SkillService } from '~/skills/skill.service';
 import {
   ProjectUsersInput,
   ProjectUsersOutput,
+  RemoveMySkillsInput,
   UpdateMyProfileInput,
   UpdateMySkillsInput,
   UserSkillOutput,
@@ -70,6 +71,16 @@ export class UserResolver {
     @CurrentUser() { id }: User,
   ) {
     await this.skillService.saveUserSkills(id, skills);
+    return true;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Mutation(() => Boolean)
+  async removeMySkills(
+    @Args() { skillNames }: RemoveMySkillsInput,
+    @CurrentUser() user: User,
+  ) {
+    await this.skillService.removeUserSkills(user.id, skillNames);
     return true;
   }
 }

@@ -86,3 +86,9 @@ export class UpdateMySkillsInput {
   @Field(() => [SkillInput], { nullable: true })
   skills: SkillInput[];
 }
+
+@ArgsType()
+export class RemoveMySkillsInput {
+  @Field(() => [String])
+  skillNames: string[];
+}
