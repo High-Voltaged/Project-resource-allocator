@@ -67,7 +67,7 @@ export class ProjectResolver {
   }
 
   @UseGuards(ProjectGuard)
-  @Roles([UserRole.Admin, UserRole.Manager])
+  @Roles([UserRole.Admin])
   @Mutation(() => Boolean)
   async deleteProject(@Args() { id }: UUIDInput) {
     await this.projectService.delete(id);

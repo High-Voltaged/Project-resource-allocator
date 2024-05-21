@@ -135,21 +135,12 @@ export class ProjectService {
     return this.projectRepository.findOne({ where: { id } });
   }
 
-  async delete(id: string): Promise<void> {
-    await this.projectRepository.manager.transaction(async (entityManager) => {
-      await entityManager
-        .createQueryBuilder()
-        .delete()
-        .from(ProjectUser)
-        .where('projectId = :id', { id })
-        .execute();
-
-      await entityManager
-        .createQueryBuilder()
-        .delete()
-        .from(Project)
-        .where('id = :id', { id })
-        .execute();
-    });
+  delete(id: string) {
+    return this.projectRepository
+      .createQueryBuilder()
+      .delete()
+      .from(Project)
+      .where('id = :id', { id })
+      .execute();
   }
 }

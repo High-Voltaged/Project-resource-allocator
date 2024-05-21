@@ -1,7 +1,7 @@
 import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { CommentService } from './comment.service';
 import { Comment } from './comment.entity';
-import { User, UserRole } from '~/users/user.entity';
+import { User } from '~/users/user.entity';
 import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '~/auth/guards/jwt.guard';
 import { CreateCommentInput } from './dto/comment.dto';
@@ -29,10 +29,13 @@ export class CommentResolver {
     return this.commentService.create(input, user.id);
   }
 
-  //! unprotected mutation
+  @UseGuards(JwtAuthGuard)
   @Mutation(() => Boolean)
-  async deleteComment(@Args() { id }: UUIDInput): Promise<boolean> {
-    await this.commentService.delete(id);
+  async deleteComment(
+    @CurrentUser() user: User,
+    @Args() { id }: UUIDInput,
+  ): Promise<boolean> {
+    await this.commentService.delete(user.id, id);
     return true;
   }
 }

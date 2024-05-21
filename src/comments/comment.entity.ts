@@ -17,13 +17,13 @@ export class Comment {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Field()
-  @ManyToOne(() => User)
+  @Field(() => User)
+  @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn({ name: 'author_id' })
   author: User;
 
-  @Field()
-  @ManyToOne(() => Ticket)
+  @Field(() => Ticket)
+  @ManyToOne(() => Ticket, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'ticket_id' })
   ticket: Ticket;
 
