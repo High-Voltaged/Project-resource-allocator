@@ -15,18 +15,21 @@ import {
 import { ProjectService } from '~/projects/project.service';
 import projectErrors from '~/projects/project.constants';
 import ticketErrors from './ticket.constants';
-import { User } from '~/users/user.entity';
 import { UserService } from '~/users/user.service';
 import userErrors from '~/users/user.constants';
 import { TicketSkill } from './ticket_skill.entity';
 import { Skill } from '~/skills/skill.entity';
 import authErrors from '~/auth/const/auth.errors';
+import { Assignee } from './assignee.entity';
+import { User } from '~/users/user.entity';
 
 @Injectable()
 export class TicketService {
   constructor(
     @InjectRepository(Ticket)
     private ticketRepository: Repository<Ticket>,
+    @InjectRepository(Assignee)
+    private assigneeRepository: Repository<Assignee>,
     private projectService: ProjectService,
     private userService: UserService,
   ) {}
@@ -43,6 +46,30 @@ export class TicketService {
     });
   }
 
+  async findAllUnassigned(projectId: string): Promise<Ticket[]> {
+    const project = await this.projectService.findOneById(projectId);
+    if (!project) {
+      throw new NotFoundException(projectErrors.NOT_FOUND);
+    }
+
+    const tickets = await this.ticketRepository
+      .createQueryBuilder('t')
+      .leftJoin('t.assignees', 'assignee')
+      .innerJoinAndMapMany('t.levels', TicketSkill, 'ts', 'ts.ticket_id = t.id')
+      .innerJoinAndMapMany('t.skillLevels', Skill, 's', 'ts.skill_id = s.id')
+      .where('t.project_id = :projectId', { projectId })
+      .andWhere('assignee.user_id IS NULL')
+      .getMany();
+
+    return tickets.map((ticket) => {
+      ticket.skillLevels = ticket.skillLevels.map((skill, i) => ({
+        ...skill,
+        level: (ticket as any).levels[i].level,
+      }));
+      return ticket;
+    });
+  }
+
   async findAllByUserId(userId: string): Promise<Ticket[]> {
     const user = await this.userService.findOneById(userId);
     if (!user) {
@@ -50,7 +77,7 @@ export class TicketService {
     }
 
     return this.ticketRepository.find({
-      where: { assignees: { id: userId } },
+      where: { assignees: { userId } },
     });
   }
 
@@ -73,7 +100,13 @@ export class TicketService {
         .select()
         .leftJoin(TicketSkill, 'ts', 'ts.ticket_id = :id', { id })
         .leftJoinAndMapMany('t.skills', Skill, 's', 'ts.skill_id = s.id')
-        .leftJoinAndSelect('t.assignees', 'assignees')
+        .leftJoin('t.assignees', 'assignees')
+        .leftJoinAndMapMany(
+          't.assignees',
+          User,
+          'u',
+          'u.id = assignees.user_id',
+        )
         .leftJoinAndSelect('t.reporter', 'reporter')
         .loadRelationIdAndMap('t.projectId', 't.project')
         .where('t.id = :id', { id })
@@ -114,36 +147,35 @@ export class TicketService {
     return ticket;
   }
 
-  async assignTicketToUser({ ticketId, userId }: AssignTicketInput) {
+  async assignTicketToUser(
+    allocatorId: string,
+    { ticketId, userId }: AssignTicketInput,
+  ) {
     const ticket = await this.assignmentPreCheck({ ticketId, userId });
 
     const alreadyAssigned = ticket.assignees.some(
-      (assignee) => assignee.id === userId,
+      (assignee) => assignee.userId === userId,
     );
 
     if (alreadyAssigned) {
       throw new BadRequestException(ticketErrors.ALREADY_ASSIGNED);
     }
 
-    ticket.assignees.push({ id: userId } as User);
-
-    await this.ticketRepository.save(ticket);
+    await this.assigneeRepository.save({ userId, ticketId, allocatorId });
   }
 
   async unassignTicketFromUser({ ticketId, userId }: AssignTicketInput) {
     const ticket = await this.assignmentPreCheck({ ticketId, userId });
 
     const notAssigned = ticket.assignees.every(
-      (assignee) => assignee.id !== userId,
+      (assignee) => assignee.userId !== userId,
     );
 
     if (notAssigned) {
       throw new BadRequestException(ticketErrors.ALREADY_ASSIGNED);
     }
 
-    ticket.assignees = ticket.assignees.filter((a) => a.id !== userId);
-
-    await this.ticketRepository.save(ticket);
+    await this.assigneeRepository.delete({ ticketId, userId });
   }
 
   async updateTicket({ id, ...data }: UpdateTicketInput) {

@@ -6,7 +6,7 @@ import {
   PartialType,
 } from '@nestjs/graphql';
 import { Ticket, TicketPriority, TicketStatus } from '../ticket.entity';
-import { IsUUID, Max, Min } from 'class-validator';
+import { IsUUID, MaxLength, MinLength } from 'class-validator';
 import { RemoveMySkillsInput, UpdateMySkillsInput } from '~/users/dto/user.dto';
 import { Skill } from '~/skills/skill.entity';
 import { TICKET_VALIDATION } from '../ticket.validation';
@@ -14,13 +14,13 @@ import { SKILL_VALIDATION } from '~/skills/skill.validation';
 
 @ArgsType()
 export class CreateTicketInput {
-  @Min(TICKET_VALIDATION.TITLE_MIN_LENGTH)
-  @Max(TICKET_VALIDATION.TITLE_MAX_LENGTH)
+  @MinLength(TICKET_VALIDATION.TITLE_MIN_LENGTH)
+  @MaxLength(TICKET_VALIDATION.TITLE_MAX_LENGTH)
   @Field()
   title: string;
 
-  @Min(TICKET_VALIDATION.DESCRIPTION_MIN_LENGTH)
-  @Max(TICKET_VALIDATION.DESCRIPTION_MAX_LENGTH)
+  @MinLength(TICKET_VALIDATION.DESCRIPTION_MIN_LENGTH)
+  @MaxLength(TICKET_VALIDATION.DESCRIPTION_MAX_LENGTH)
   @Field()
   description: string;
 
@@ -78,8 +78,8 @@ export class TicketWithRelationsOutput extends Ticket {
 
 @ArgsType()
 export class AddSkillInput {
-  @Min(SKILL_VALIDATION.NAME_MIN_LENGTH)
-  @Max(SKILL_VALIDATION.NAME_MAX_LENGTH)
+  @MinLength(SKILL_VALIDATION.NAME_MIN_LENGTH)
+  @MaxLength(SKILL_VALIDATION.NAME_MAX_LENGTH)
   @Field()
   name: string;
 }

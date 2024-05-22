@@ -6,11 +6,12 @@ import {
   CreateDateColumn,
   ManyToOne,
   JoinColumn,
-  ManyToMany,
-  JoinTable,
+  OneToMany,
 } from 'typeorm';
 import { Project } from '~/projects/project.entity';
+import { UserSkillOutput } from '~/users/dto/user.dto';
 import { User } from '~/users/user.entity';
+import { Assignee } from './assignee.entity';
 
 export enum TicketStatus {
   backlog = 'backlog',
@@ -84,7 +85,8 @@ export class Ticket {
   reporter: User;
 
   @Field(() => [User])
-  @ManyToMany(() => User)
-  @JoinTable({ name: 'assignees' })
-  assignees: User[];
+  @OneToMany(() => Assignee, (assignee) => assignee.ticket)
+  assignees: Assignee[];
+
+  skillLevels: UserSkillOutput[];
 }

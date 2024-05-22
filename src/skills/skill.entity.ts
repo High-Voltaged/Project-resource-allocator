@@ -2,9 +2,9 @@ import { Field, ObjectType } from '@nestjs/graphql';
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
 export enum SkillLevel {
-  Beginner,
-  Intermediate,
-  Proficient,
+  Beginner = 1,
+  Intermediate = 2,
+  Proficient = 3,
 }
 
 @ObjectType()

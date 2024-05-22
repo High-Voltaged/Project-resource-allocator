@@ -7,6 +7,7 @@ import {
   JoinTable,
 } from 'typeorm';
 import { Ticket } from '../tickets/ticket.entity';
+import { UserSkillOutput } from './dto/user.dto';
 
 export enum UserRole {
   Admin = 'Admin',
@@ -47,6 +48,8 @@ export class User {
   @ManyToMany(() => Ticket)
   @JoinTable({ name: 'assignees' })
   tickets: Ticket[];
+
+  skillLevels: UserSkillOutput[];
 }
 
 @ObjectType()

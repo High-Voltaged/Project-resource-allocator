@@ -86,6 +86,33 @@ export class UserService {
     return { items, count };
   }
 
+  async findAllWithSkillsByProjectId({
+    projectId,
+    role,
+  }: ProjectUsersInput): Promise<User[]> {
+    const qb = this.userRepository
+      .createQueryBuilder('u')
+      .innerJoin(ProjectUser, 'pu', 'pu.user_id = u.id')
+      .innerJoinAndMapMany('u.levels', UserSkill, 'us', 'us.user_id = u.id')
+      .innerJoinAndMapMany('u.skillLevels', Skill, 's', 'us.skill_id = s.id')
+      .where('pu.project_id = :projectId', { projectId })
+      .orderBy('u.first_name', 'ASC');
+
+    if (role) {
+      qb.andWhere('pu.role = :role', { role });
+    }
+
+    const users = await qb.getMany();
+
+    return users.map((user) => {
+      user.skillLevels = user.skillLevels.map((skill, i) => ({
+        ...skill,
+        level: (user as any).levels[i].level,
+      }));
+      return user;
+    });
+  }
+
   async createUser(data: RegisterInput) {
     await this.userRepository.save(data);
   }

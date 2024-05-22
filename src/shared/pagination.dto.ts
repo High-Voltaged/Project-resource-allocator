@@ -5,12 +5,12 @@ import { Max, Min } from 'class-validator';
 export class PaginationArgs {
   @Min(0)
   @Field(() => Int, { nullable: true })
-  offset = 0;
+  offset? = 0;
 
   @Min(0)
   @Max(50)
   @Field(() => Int, { nullable: true })
-  limit = 20;
+  limit? = 20;
 }
 
 @ObjectType()

@@ -11,7 +11,7 @@ import { Ticket } from '~/tickets/ticket.entity';
 import { User } from '~/users/user.entity';
 
 @ObjectType()
-@Entity()
+@Entity({ name: 'comments' })
 export class Comment {
   @Field()
   @PrimaryGeneratedColumn('uuid')

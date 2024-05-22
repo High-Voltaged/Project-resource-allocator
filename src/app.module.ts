@@ -13,6 +13,7 @@ import { ProjectModule } from './projects/project.module';
 import { TicketModule } from './tickets/ticket.module';
 import { DateTimeScalar } from './shared/date.scalar';
 import { CommentModule } from './comments/comment.module';
+import { AllocationModule } from './allocation/allocation.module';
 
 dotenv.config();
 
@@ -38,6 +39,7 @@ dotenv.config();
     ProjectModule,
     TicketModule,
     CommentModule,
+    AllocationModule,
   ],
   controllers: [AppController],
   providers: [AppService, AppResolver, DateTimeScalar],

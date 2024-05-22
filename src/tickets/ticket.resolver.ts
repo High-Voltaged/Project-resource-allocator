@@ -90,8 +90,11 @@ export class TicketResolver {
   @UseGuards(TicketGuard)
   @Roles([UserRole.Admin, UserRole.Manager])
   @Mutation(() => Boolean)
-  async assignTicketToUser(@Args() data: AssignTicketInput) {
-    await this.ticketService.assignTicketToUser(data);
+  async assignTicketToUser(
+    @CurrentUser() user: User,
+    @Args() data: AssignTicketInput,
+  ) {
+    await this.ticketService.assignTicketToUser(user.id, data);
     return true;
   }
 
