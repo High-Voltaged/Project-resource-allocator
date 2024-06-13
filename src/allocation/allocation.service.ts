@@ -417,7 +417,7 @@ export class AllocationService {
 
   cancelAllocation(allocationIds: string[]) {
     return this.assigneeRepository
-      .createQueryBuilder('')
+      .createQueryBuilder()
       .delete()
       .where('allocation_id IN (:...allocationIds)', { allocationIds })
       .execute();
